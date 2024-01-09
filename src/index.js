@@ -32,6 +32,19 @@ app.post("/pasien", async (req, res) => {
     message: "Berhasil",
   });
 });
+
+app.delete("/pasien/:noPasien", async (req, res) => {
+  const noPasien = req.params.noPasien;
+
+  await prisma.pasien.delete({
+    where: {
+      noPasien: parseInt(noPasien),
+    },
+  });
+
+  res.send("Berhasil Dihapus");
+});
+
 app.listen(PORT, () => {
   console.log("Running on " + PORT);
 });
