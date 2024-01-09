@@ -33,23 +33,6 @@ app.post("/pasien", async (req, res) => {
   });
 });
 
-app.post("/pasien", async (req, res) => {
-  const addPasien = req.body;
-
-  const pasien = await prisma.pasien.create({
-    data: {
-      nama: addPasien.nama,
-      keluhan: addPasien.keluhan,
-      kunjungan: addPasien.kunjungan,
-    },
-  });
-
-  res.send({
-    data: pasien,
-    message: "Berhasil",
-  });
-});
-
 app.delete("/pasien/:noPasien", async (req, res) => {
   const noPasien = req.params.noPasien;
 
