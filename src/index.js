@@ -20,29 +20,30 @@ app.get("/pasien", async (req, res) => {
 
 app.post("/pasien", async (req, res) => {
   const addPasien = req.body;
+  const { nama, keluhan, alamat, gender, kunjungan } = addPasien;
 
   try {
     const existingPasien = await prisma.pasien.findFirst({
       where: {
-        nama: addPasien.nama,
-        gender: addPasien.gender,
-        alamat: addPasien.alamat,
+        nama,
+        gender,
+        alamat,
       },
     });
     let updatedKeluhan;
 
     if (existingPasien) {
-      updatedKeluhan = `${addPasien.keluhan}, ${existingPasien.keluhan}`;
+      updatedKeluhan = `${keluhan}, ${existingPasien.keluhan}`;
     } else {
-      updatedKeluhan = addPasien.keluhan;
+      updatedKeluhan = keluhan;
     }
 
     const pasien = await prisma.pasien.upsert({
       where: {
         nama_gender_alamat: {
-          nama: addPasien.nama,
-          gender: addPasien.gender,
-          alamat: addPasien.alamat,
+          nama,
+          gender,
+          alamat,
         },
       },
       update: {
@@ -54,11 +55,11 @@ app.post("/pasien", async (req, res) => {
         },
       },
       create: {
-        nama: addPasien.nama,
-        keluhan: addPasien.keluhan,
+        nama,
+        keluhan,
         kunjungan: 1,
-        alamat: addPasien.alamat,
-        gender: addPasien.gender,
+        alamat,
+        gender,
       },
     });
 
