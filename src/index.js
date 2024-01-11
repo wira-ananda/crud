@@ -20,19 +20,50 @@ app.get("/pasien", async (req, res) => {
 
 app.post("/pasien", async (req, res) => {
   const addPasien = req.body;
+  try {
+    const existingPasien = await prisma.pasien.findFirst({
+      where: {
+        nama: addPasien.nama,
+        gender: addPasien.gender,
+        alamat: addPasien.alamat,
+      },
+    });
+    const pasien = await prisma.pasien.upsert({
+      where: {
+        nama_gender_alamat: {
+          nama: addPasien.nama,
+          gender: addPasien.gender,
+          alamat: addPasien.alamat,
+        },
+      },
+      update: {
+        kunjungan: {
+          increment: 1,
+        },
+        keluhan: {
+          set: `${addPasien.keluhan} , ${existingPasien.keluhan}`,
+        },
+      },
+      create: {
+        nama: addPasien.nama,
+        keluhan: addPasien.keluhan,
+        kunjungan: 1,
+        alamat: addPasien.alamat,
+        gender: addPasien.gender,
+      },
+    });
 
-  const pasien = await prisma.pasien.create({
-    data: {
-      nama: addPasien.nama,
-      keluhan: addPasien.keluhan,
-      kunjungan: addPasien.kunjungan,
-    },
-  });
-
-  res.send({
-    data: pasien,
-    message: "Berhasil",
-  });
+    res.send({
+      data: pasien,
+      message: "Berhasil",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      message: "Gagal melakukan upsert",
+      error: error.message,
+    });
+  }
 });
 
 app.delete("/pasien/:noPasien", async (req, res) => {
@@ -50,3 +81,22 @@ app.delete("/pasien/:noPasien", async (req, res) => {
 app.listen(PORT, () => {
   console.log("Running on " + PORT);
 });
+
+// app.post("/pasien", async (req, res) => {
+//   const addPasien = req.body;
+
+//   const pasien = await prisma.pasien.create({
+//     data: {
+//       nama: addPasien.nama,
+//       keluhan: addPasien.keluhan,
+//       kunjungan: addPasien.kunjungan,
+//       gender: addPasien.gender,
+//       alamat: addPasien.alamat,
+//     },
+//   });
+
+//   res.send({
+//     data: pasien,
+//     message: "Berhasil",
+//   });
+// });

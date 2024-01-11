@@ -7,9 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Gender {
+  P
+  L
+}
+
 model Pasien {
   noPasien  Int    @id @default(autoincrement())
   nama      String
   keluhan   String
+  alamat    String
+  gender    Gender
   kunjungan Int
+
+  @@unique([nama, gender, alamat])
 }
