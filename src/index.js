@@ -20,6 +20,7 @@ app.get("/pasien", async (req, res) => {
 
 app.post("/pasien", async (req, res) => {
   const addPasien = req.body;
+
   try {
     const existingPasien = await prisma.pasien.findFirst({
       where: {
@@ -28,6 +29,14 @@ app.post("/pasien", async (req, res) => {
         alamat: addPasien.alamat,
       },
     });
+    let updatedKeluhan;
+
+    if (existingPasien) {
+      updatedKeluhan = `${addPasien.keluhan}, ${existingPasien.keluhan}`;
+    } else {
+      updatedKeluhan = addPasien.keluhan;
+    }
+
     const pasien = await prisma.pasien.upsert({
       where: {
         nama_gender_alamat: {
@@ -41,7 +50,7 @@ app.post("/pasien", async (req, res) => {
           increment: 1,
         },
         keluhan: {
-          set: `${addPasien.keluhan} , ${existingPasien.keluhan}`,
+          set: updatedKeluhan,
         },
       },
       create: {
@@ -81,22 +90,3 @@ app.delete("/pasien/:noPasien", async (req, res) => {
 app.listen(PORT, () => {
   console.log("Running on " + PORT);
 });
-
-// app.post("/pasien", async (req, res) => {
-//   const addPasien = req.body;
-
-//   const pasien = await prisma.pasien.create({
-//     data: {
-//       nama: addPasien.nama,
-//       keluhan: addPasien.keluhan,
-//       kunjungan: addPasien.kunjungan,
-//       gender: addPasien.gender,
-//       alamat: addPasien.alamat,
-//     },
-//   });
-
-//   res.send({
-//     data: pasien,
-//     message: "Berhasil",
-//   });
-// });
